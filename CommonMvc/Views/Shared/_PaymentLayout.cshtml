@@ -1,0 +1,64 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - SupportUserPanel</title>
+    @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" />*@
+    <!-- Bootstrap 3.3.4 -->
+    <link rel="stylesheet" href="~/bootstrap/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="~/plugins/bootstrap-wysihtml5/bootstrap3-wysihtml5.min.css">
+    <link href="~/login/Plugins/Preloader/css/preloader.css" rel="stylesheet" />
+    <link href="~/login/Plugins/Preloader/css/buttonLoader.css" rel="stylesheet" />
+    <!-- jQuery 2.1.4 -->
+    <script src="~/plugins/jQuery/jQuery-2.1.4.min.js"></script>
+    <!-- jQuery UI 1.11.4 -->
+    @*<script src="https://code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>*@
+    <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+    <!-- Bootstrap 3.3.4 -->
+    <script src="~/bootstrap/js/bootstrap.min.js"></script>
+
+
+    <script src="~/login/Plugins/Preloader/js/jquery.preloader.min.js"></script>
+    <script src="~/login/Plugins/Preloader/js/jquery.buttonLoader.js"></script>
+    <script src="~/login/Plugins/Notify/jquery.growl.js"></script>
+
+</head>
+<body class="skin-blue sidebar-mini">
+    <div class="wrapper">
+        <div class="row">
+            <section class="col-lg-12 connectedSortable someBlock">
+                @RenderBody()
+            </section>
+        </div>
+        <script>
+            var obj = {},
+                someBlock = $('.someBlock');
+            function loadingBoxStart() {
+                someBlock.preloader({
+                    text: obj.textVal,
+                    percent: obj.percentVal,
+                    duration: obj.durationVal
+                });
+                //$('.form-control').each(function (k, v) {
+                //    if (v.value.length == 0) $(v).attr('disabled', true);
+                //});
+            }
+            function loadingBoxStop() {
+                someBlock.preloader('remove');
+                //$('.form-control').attr('disabled', false);
+            }
+
+            function loadBtnStart(btnId) {
+                $("#" + btnId).buttonLoader('start');
+            }
+            function loadBtnStop(btnId) {
+                $("#" + btnId).buttonLoader('stop');
+            }
+        </script>
+        @RenderSection("Scripts", required: false)
+    </div>
+</body>
+</html>
