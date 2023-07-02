@@ -18,13 +18,11 @@ public partial class GenericController<T, T1> : BaseController<T1> where T : Bas
     private List<string> includes;
     protected Dictionary<string, string> CustomActions;
     protected Random r;
-    protected readonly List<PropertyInfo> _cachedProperty;
     private readonly IWebHostEnvironment _webHostEnvironment;
     public GenericController(T1 context, IConfiguration config, IWebHostEnvironment webHostEnvironment) : base(context, config, webHostEnvironment)
     {
         includes = new List<string>();
         _webHostEnvironment = webHostEnvironment;
-        _cachedProperty = typeof(T).GetProperties().ToList();
         AddIncludesLevel(ref includes, typeof(T), 3);
         includes = includes.Where(i => !i.EndsWith("." + typeof(T).Name)).ToList();
 
