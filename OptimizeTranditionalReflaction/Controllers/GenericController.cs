@@ -243,9 +243,7 @@ public partial class GenericController<T, T1> : BaseController<T1> where T : Bas
     /// <returns></returns>
     public virtual IActionResult Index(int? id, int? id1)
     {
-
-        var type = typeof(T);
-        var props = type.GetProperties().ToList().Where(i => !i.PropertyType.Name.StartsWith("ICollection")).ToList();
+        var props = _cachedProperty.Where(i => !i.PropertyType.Name.StartsWith("ICollection")).ToList();
         var props1 = props.Where(i => i.CustomAttributes.Any(k => k.AttributeType == typeof(ForeignKeyAttribute))).ToList();
 
 
