@@ -7,4 +7,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.13.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\OptimizeTranditionalReflaction\OptimizeTranditionalReflaction.csproj" />
+    <ProjectReference Include="..\TranditionalReflaction\TranditionalReflaction.csproj" />
+  </ItemGroup>
+
 </Project>
