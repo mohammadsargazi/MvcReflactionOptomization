@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Collections.Concurrent;
 
 namespace OptimizeTranditionalReflaction.Controllers;
 
@@ -235,6 +236,22 @@ public partial class GenericController<T, T1> : BaseController<T1> where T : Bas
     //}
     #endregion
 
+    #region DelegateFunctions
+    static ConcurrentDictionary<Func<PropertyInfo, bool>, List<PropertyInfo>> cachedproperties =
+            new ConcurrentDictionary<Func<PropertyInfo, bool>, List<PropertyInfo>>();
+
+    public delegate List<PropertyInfo> GetFilteredPropertiesDelegate(Func<PropertyInfo, bool> filter, List<PropertyInfo> props);
+    public static List<PropertyInfo> GetFilteredProperties(Func<PropertyInfo, bool> filter, List<PropertyInfo> props)
+    {
+        if (cachedproperties.TryGetValue(filter, out var cachedResult))
+            return cachedResult;
+
+        props = props.Where(filter).ToList();
+        cachedproperties.TryAdd(filter, props);
+        return props;
+    }
+    private static readonly GetFilteredPropertiesDelegate FilterPropertiesDelegate = GetFilteredProperties;
+    #endregion
     /// <summary>
     /// Shows items from a table
     /// </summary>
@@ -243,9 +260,8 @@ public partial class GenericController<T, T1> : BaseController<T1> where T : Bas
     /// <returns></returns>
     public virtual IActionResult Index(int? id, int? id1)
     {
-        var props = _cachedProperty.Where(i => !i.PropertyType.Name.StartsWith("ICollection")).ToList();
-        var props1 = props.Where(i => i.CustomAttributes.Any(k => k.AttributeType == typeof(ForeignKeyAttribute))).ToList();
-
+        var props = FilterPropertiesDelegate(i => !i.PropertyType.Name.StartsWith("ICollection"), _cachedProperty); //_cachedProperty.Where(i => !i.PropertyType.Name.StartsWith("ICollection")).ToList();
+        var props1 = FilterPropertiesDelegate(i => i.CustomAttributes.Any(k => k.AttributeType == typeof(ForeignKeyAttribute)), props); //props.Where(i => i.CustomAttributes.Any(k => k.AttributeType == typeof(ForeignKeyAttribute))).ToList();
 
         var pagesize = id1 ?? 10;
         var pageindex = id ?? 1;
@@ -366,7 +382,7 @@ public partial class GenericController<T, T1> : BaseController<T1> where T : Bas
 
     public IQueryable<T> GetTable()
     {
-        var source = _context.Set<T>().OrderBy(i => i.Id).AsQueryable();
+        var source = _context.Set<T>().AsNoTracking().OrderBy(i => i.Id).AsQueryable();
         foreach (var include in includes)
         {
             source = source.Include(include);
