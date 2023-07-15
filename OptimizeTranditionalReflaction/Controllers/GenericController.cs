@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using System.Collections.Concurrent;
 
 namespace OptimizeTranditionalReflaction.Controllers;
 
@@ -235,6 +236,22 @@ public partial class GenericController<T, T1> : BaseController<T1> where T : Bas
     //}
     #endregion
 
+    #region DelegateFunctions
+    static ConcurrentDictionary<Func<PropertyInfo, bool>, List<PropertyInfo>> cachedproperties =
+            new ConcurrentDictionary<Func<PropertyInfo, bool>, List<PropertyInfo>>();
+
+    public delegate List<PropertyInfo> GetFilteredPropertiesDelegate(Func<PropertyInfo, bool> filter, List<PropertyInfo> props);
+    public static List<PropertyInfo> GetFilteredProperties(Func<PropertyInfo, bool> filter, List<PropertyInfo> props)
+    {
+        if (cachedproperties.TryGetValue(filter, out var cachedResult))
+            return cachedResult;
+
+        props = props.Where(filter).ToList();
+        cachedproperties.TryAdd(filter, props);
+        return props;
+    }
+    private static readonly GetFilteredPropertiesDelegate FilterPropertiesDelegate = GetFilteredProperties;
+    #endregion
     /// <summary>
     /// Shows items from a table
     /// </summary>
