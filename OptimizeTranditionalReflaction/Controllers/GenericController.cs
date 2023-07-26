@@ -265,15 +265,16 @@ public partial class GenericController<T, T1> : BaseController<T1> where T : Bas
 
         var pagesize = id1 ?? 10;
         var pageindex = id ?? 1;
-        var sourceCount = GetTable().Count();
-        var source = GetTable().Skip((pageindex - 1) * pagesize).Take(pagesize);
+        var getTable = GetTable();
+        var sourceCount = getTable.Count();
+        var source = getTable.Skip((pageindex - 1) * pagesize).Take(pagesize);
         var t1 = source.Where(i => i.Visible).ToList();
         var data = t1;
         ViewBag.TotalPages = (int)sourceCount / pagesize + (sourceCount % pagesize == 0 ? 0 : 1);
         ViewBag.PageSize = pagesize;
         ViewBag.PageIndex = pageindex;
         props = props.Except(props1).ToList();
-        props = props.Where(i => !i.CustomAttributes.Any(k => k.AttributeType == typeof(NotListedAttribute) || k.AttributeType == typeof(NotShowInListAttribute))).ToList();
+        props = FilterPropertiesDelegate(i => !i.CustomAttributes.Any(k => k.AttributeType == typeof(NotListedAttribute) || k.AttributeType == typeof(NotShowInListAttribute)),props);
         ViewBag.props = props;
         ViewBag.ImageUrl = typeof(T).Name + "\\images";
         ViewBag.AudioUrl = typeof(T).Name + "\\audio";
